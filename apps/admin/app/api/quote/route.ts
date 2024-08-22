@@ -4,7 +4,7 @@ import { Status, Language } from "@prisma/client";
 import { getSession } from "../../../libs/auth";
 import axios from "axios";
 
-const QUOTE_API_URL = process.env.QUOTE_API_URL || "http://localhost:8000/v1/quote/add-quotes-bulk";
+const QUOTE_API_URL = process.env.QUOTE_API_URL || "http:///13.233.190.198/v1/quote/add-quotes-bulk";
 
 interface QuoteRequest {
     movie: string;
