@@ -16,7 +16,8 @@ export default function QuoteCard() {
 
   const fetchQuotes = async () => {
     setLoading(true);
-    const req = await axios.post("http://localhost:3000/api/search", { quote: quote });
+    const url = process.env.NEXT_PUBLIC_QUOTE_URL || 'https://default-url.com/api';
+    const req = await axios.post(url, { quote: quote });
     setQuotes(req.data.data);
     setLoading(false);
   };

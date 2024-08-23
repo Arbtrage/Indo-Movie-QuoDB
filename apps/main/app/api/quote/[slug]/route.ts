@@ -7,7 +7,7 @@ export const GET = async (
     request: NextRequest,
     { params }: { params: { slug: string } }
 ) => {
-    const response = await axios.get("http://localhost:8000/v1/quote/search?query=" + params.slug);
+    const response = await axios.get(process.env.NEXT_SERVER_URL || "http://localhost:8000/v1/quote/search?query=" + params.slug);
     const quotesData = response.data;
 
     const data = quotesData.map((quote: any) => {
