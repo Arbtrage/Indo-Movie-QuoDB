@@ -17,14 +17,15 @@ const TranslateClient = () => {
         try {
             const targetSlug = slug[target as keyof typeof slug];
             const sourceSlug = slug[source as keyof typeof slug];
-            const data = {
-                "sentence": sourceText,
-                "source": sourceSlug,
-                "target": targetSlug
-            }
-
-            const response: any = await translate(data);
-            setTranslatedText(response);
+            const response: any = await axios.post('/api/translate', {
+                data: {
+                    "sentence": sourceText,
+                    "source": sourceSlug,
+                    "target": targetSlug
+                }
+            })
+            console.log(response.data)
+            setTranslatedText(response.data.data);
         } catch (error) {
             console.log(error);
             setTranslatedText('Translation failed. Please try again.');
