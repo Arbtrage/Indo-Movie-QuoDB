@@ -16,10 +16,15 @@ export default function QuoteCard() {
 
   const fetchQuotes = async () => {
     setLoading(true);
-    const url = process.env.NEXT_PUBLIC_QUOTE_URL || 'https://default-url.com/api';
-    const req = await axios.post(url, { quote: quote });
-    setQuotes(req.data.data);
-    setLoading(false);
+    try {
+      const url = process.env.NEXT_PUBLIC_QUOTE_URL || "http://localhost:3000/api/search";
+      const req = await axios.post(url, { quote: quote });
+      setQuotes(req.data.data);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
   };
 
   if (quote?.length === 0) return null;

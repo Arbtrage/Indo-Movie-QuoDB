@@ -11,6 +11,7 @@ export const POST = async (
         const req = await request.json();
         const response = await axios.get(process.env.NEXT_SERVER_QUOTE_SEARCH + req.quote);
         const quotesData = response.data;
+        console.log(quotesData)
 
         const quotesfinal = await Promise.all(
             quotesData.map(async (quote: any) => {
