@@ -44,11 +44,9 @@ export function DashboardNav({
                                 <TooltipTrigger asChild>
                                     <Link
                                         href={item.disabled ? '/' : item.href}
-                                        className={cn(
-                                            'flex items-center gap-2 overflow-hidden rounded-md py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground',
-                                            path === item.href ? 'bg-accent' : 'transparent',
-                                            item.disabled && 'cursor-not-allowed opacity-80'
-                                        )}
+                                        className={`flex items-center gap-2 overflow-hidden rounded-md py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground ${
+                                            path === item.href ? 'bg-accent' : 'transparent'
+                                        } ${item.disabled ? 'cursor-not-allowed opacity-80' : ''}`}
                                         onClick={() => {
                                             if (setOpen) setOpen(false);
                                         }}
