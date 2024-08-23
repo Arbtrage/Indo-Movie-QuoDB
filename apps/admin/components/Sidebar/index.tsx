@@ -21,11 +21,8 @@ export default function Sidebar({ className }: SidebarProps) {
 
     return (
         <aside
-            className={cn(
-                `relative  hidden h-screen flex-none border-r bg-card transition-[width] duration-500 md:block`,
-                !isMinimized ? 'w-60' : 'w-[72px]',
-                className
-            )}
+            className={`relative hidden h-screen flex-none border-r bg-card transition-[width] duration-500 md:block ${!isMinimized ? 'w-60' : 'w-[72px]'
+                }`}
         >
             <div className="hidden p-5 pt-10 lg:block">
                 <Link
@@ -47,10 +44,10 @@ export default function Sidebar({ className }: SidebarProps) {
                 </Link>
             </div>
             <ChevronLeft
-                className={cn(
-                    'absolute -right-3 top-10 z-50  cursor-pointer rounded-full border bg-background text-3xl text-foreground',
-                    isMinimized && 'rotate-180'
-                )}
+                className={`
+                    absolute -right-3 top-10 z-50  cursor-pointer rounded-full border bg-background text-3xl text-foreground',
+                    isMinimized && 'rotate-180
+                `}
                 onClick={handleToggle}
             />
             <div className="space-y-4 py-4">
