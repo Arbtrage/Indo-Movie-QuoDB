@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
-import { cn } from "@ui/lib/utils";
+import { cn } from "@ui/libs/utils";
 
 interface GridPatternProps {
     width?: number;
