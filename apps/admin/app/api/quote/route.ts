@@ -23,30 +23,30 @@ export const POST = async (req: NextRequest) => {
                 status: 400,
             });
         }
-
+        console.log(data);
         let quoteData: any[] = [];
 
-        await prisma.$transaction(async (tx) => {
-            for (const quote of data) {
-                const createdQuote = await tx.quotes.create({
-                    data: {
-                        movie: quote.movie,
-                        quote: quote.quote,
-                        year: quote.year,
-                        language: quote.language,
-                        status: Status.APPROVED,
-                        userId: session?.user?.id,
-                    },
-                });
+        // await prisma.$transaction(async (tx) => {
+        //     for (const quote of data) {
+        //         const createdQuote = await tx.quotes.create({
+        //             data: {
+        //                 movie: quote.movie,
+        //                 quote: quote.quote,
+        //                 year: quote.year,
+        //                 language: quote.language,
+        //                 status: Status.APPROVED,
+        //                 userId: session?.user?.id,
+        //             },
+        //         });
 
-                quoteData.push({
-                    quote_id: createdQuote.id,
-                    quote: createdQuote.quote,
-                });
-            }
-        });
+        //         quoteData.push({
+        //             quote_id: createdQuote.id,
+        //             quote: createdQuote.quote,
+        //         });
+        //     }
+        // });
 
-        await axios.post(QUOTE_API_URL, quoteData);
+        // await axios.post(QUOTE_API_URL, quoteData);
         return new NextResponse(JSON.stringify({ success: true }), { status: 201 });
     } catch (error: any) {
         console.error("Failed to post quote", error.message);
