@@ -65,22 +65,31 @@ const Uploader = () => {
         }
     };
 
-    const parseSRT = (srtText: string) => {
-        const srtBlocks = srtText.split('\n\n');
-        const quotes = srtBlocks.map((block) => {
-            const lines = block.split('\n');
+    const parseSRT = (srtText: any) => {
+        // Split by double newlines to separate blocks
+        const srtBlocks = srtText.split(/\r?\n\r?\n/);
+
+        // Process each block to extract quotes
+        const quotes = srtBlocks.map((block: any) => {
+            // Split each block into lines
+            const lines = block.split(/\r?\n/);
+
+            // Extract lines that are dialogue (skip first two lines typically)
             const quoteLines = lines.slice(2);
-            return quoteLines.join(' ').trim().replace(/^'|'$/g, '');
-        }).filter(quote => quote.length > 0);
+
+            // Join the quote lines into a single string and trim excess whitespace
+            return quoteLines.join(' ').trim();
+        }).filter((quote: any) => quote.length > 0 && !quote.startsWith('(') && !quote.startsWith('[')); // Filter out empty lines or non-dialogue lines
+
         return quotes;
     };
-
 
     const handleSubmit = async (event: any) => {
         event.preventDefault();
         setLoading(true);
         if (fileData.length > 0 && movieName && year && language) {
             const payload: QuoteRequest[] = fileData.map((quote: string) => ({
+                id: 1,
                 movie: movieName,
                 quote,
                 year,
