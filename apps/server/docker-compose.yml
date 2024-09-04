@@ -24,6 +24,8 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
     networks:
       - elasticnet
+    volumes:
+      - /tmp:/tmp  # Ensure no unnecessary data is stored
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
@@ -54,12 +56,16 @@ services:
       - "9200:9200"
     networks:
       - elasticnet
+    logging:
+      driver: "none"  # Disable logging to save space
 
   redis:
     container_name: redis
-    image: redis:7-alpine
+    image: redis:7-alpine  # Using alpine version for reduced size
     networks:
       - elasticnet
+    logging:
+      driver: "none"  # Disable logging to save space
 
   celery_worker:
     container_name: celery_worker_imqdb
@@ -78,13 +84,15 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
     volumes:
-      - .:/app
+      - .:/app:ro  # Set as read-only to minimize unnecessary writes
     depends_on:
       - api
       - redis
       - elasticsearch
     networks:
       - elasticnet
+    logging:
+      driver: "none"  # Disable logging to save space
 
   flower:
     container_name: flower
@@ -110,9 +118,14 @@ services:
       - celery_worker
     networks:
       - elasticnet
+    logging:
+      driver: "none"  # Disable logging to save space
 
 networks:
   elasticnet:
 
 volumes:
   esdata1:
+    driver_opts:
+      type: "tmpfs"  # Use tmpfs to store data in memory to reduce disk usage
+      o: "size=500m"  # Set a limit on the size of the Elasticsearch volume
