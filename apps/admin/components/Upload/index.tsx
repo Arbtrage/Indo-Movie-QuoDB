@@ -104,10 +104,9 @@ const Uploader = () => {
                 body: JSON.stringify(payload),
             });
             const r=await response.json()
-            console.log(r)
             if (response.ok) {
                 alert('Uploaded successfully');
-                console.log('Data sent successfully');
+                console.log('Data sent successfully. Please wait for sometime to see the changes.');
             } else {
                 alert('Failed to send data');
                 console.error('Failed to send data');

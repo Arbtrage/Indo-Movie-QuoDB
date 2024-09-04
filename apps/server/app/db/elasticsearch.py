@@ -93,7 +93,7 @@ class ElasticsearchClient:
         response = await es_client.search(
             index="quotes",
             body={
-                "size": 20,
+                "size": 10,
                 "query": {
                     "script_score": {
                         "query": {"match_all": {}},

@@ -1,9 +1,9 @@
 "use client";
-
+import React from "react";
 import PageContainer from "../../../components/Layout";
 import { Label } from "@ui/components/label";
-import { Quotes } from "../../../libs/data";
 import useSWR from "swr";
+import { useRouter } from "next/navigation";
 import { fetcher } from "../../../libs/utils";
 import { QuotesTable } from "../../../components/Tables/QuotesTable";
 import { columns } from "../../../components/Tables/columns";
@@ -16,12 +16,24 @@ type paramsProps = {
 };
 
 export default function Dashboard({ searchParams }: paramsProps) {
+    const router = useRouter();
+    const [page, setPage] = React.useState(Number(searchParams.page) || 1);
+    const [pageLimit, setPageLimit] = React.useState(Number(searchParams.limit) || 10);
+    
+    const { data, error, isLoading } = useSWR(`/api/quote?page=${page}&limit=${pageLimit}`, fetcher, {
+        revalidateOnFocus: false,
+        revalidateOnMount: true,
+        revalidateOnReconnect: true
+    });
 
-    const page = Number(searchParams.page) || 1;
-    const pageLimit = Number(searchParams.limit) || 10;
+    React.useEffect(() => {
+        const queryParams = new URLSearchParams();
+        queryParams.set('page', page.toString());
+        queryParams.set('limit', pageLimit.toString());
 
+        router.replace(`/dashboard/quotes?${queryParams.toString()}`, { scroll: false });
+    }, [page, pageLimit]);
 
-    const { data, error, isLoading } = useSWR("/api/quote", fetcher);
 
     if (isLoading) return <div>Loading...</div>
 
@@ -29,8 +41,8 @@ export default function Dashboard({ searchParams }: paramsProps) {
 
     if (!isLoading && !error && !data) return <div>No data</div>
 
-    const quotes = data;
-    const totalQuotes = data?.length;
+    const quotes = data.quotes;
+    const totalQuotes = data.totalQuotes;
     const pageCount = Math.ceil(totalQuotes / pageLimit);
 
     return (
@@ -45,6 +57,8 @@ export default function Dashboard({ searchParams }: paramsProps) {
                         totalUsers={totalQuotes}
                         data={quotes}
                         pageCount={pageCount}
+                        onPageChange={(newPage: number) => setPage(newPage)}
+                        onPageLimitChange={(newLimit: number) => setPageLimit(newLimit)}
                     />
                 )}
             </div>

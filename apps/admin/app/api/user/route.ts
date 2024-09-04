@@ -25,3 +25,8 @@ export const POST = async (req: NextRequest) => {
 
     return NextResponse.json(user);
 };
+
+export const GET = async (req: NextRequest) => {
+   
+    return NextResponse.json({message:"Hello World"});
+}

@@ -13,7 +13,7 @@ export default function SearchBar({ query, setQuery, onSubmit }: any) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
-      <div className="bg-gray-600 p-2 hover:bg-blue-400 cursor-pointer mx-2 rounded-full">
+      <div className="bg-gray-600 p-2 hover:bg-blue-400 cursor-pointer mx-2 rounded-full" onClick={onSubmit}>
         <svg
           className="w-6 h-6 text-white"
           xmlns="http://www.w3.org/2000/svg"

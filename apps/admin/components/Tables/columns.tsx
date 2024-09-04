@@ -21,8 +21,4 @@ export const columns: ColumnDef<Quotes>[] = [
         accessorKey: 'language',
         header: 'Language'
     },
-    // {
-    //     accessorKey: 'name',
-    //     header: 'Contributed By'
-    // }
 ];

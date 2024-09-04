@@ -6,13 +6,14 @@ import axios from "axios";
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
-const QUOTE_API_URL = process.env.QUOTE_API_URL || "http:///13.233.190.198/v1/quote/add-quotes-bulk";
+const QUOTE_TRIGGER_URL = process.env.QUOTE_TRIGGER_URL || "http://localhost:8000/v1/quote/trigger-quotes-bulk";
 interface QuoteRequest {
     movie: string;
     quote: string;
     year: string;
     language: Language;
 }
+
 const BATCH_SIZE = 200;
 
 export const POST = async (req: NextRequest) => {
@@ -50,20 +51,17 @@ export const POST = async (req: NextRequest) => {
                 }
             });
 
-
             console.log("Batch", i + 1, "posted successfully");
         }
+        let res;
+        if (quoteData.length > 0) {
+            res = await axios.post(QUOTE_TRIGGER_URL, quoteData);
+            // if (apiResponse.status !== 200) {
+            //     throw new Error(`API responded with status: ${apiResponse.status}`);
+            // }
+        }
 
-        console.log(quoteData);
-
-        // if (quoteData.length > 0) {
-        //     const apiResponse = await axios.post(QUOTE_API_URL, quoteData);
-        //     if (apiResponse.status !== 200) {
-        //         throw new Error(`API responded with status: ${apiResponse.status}`);
-        //     }
-        // }
-
-        return new NextResponse(JSON.stringify({ success: true ,data: quoteData}), { status: 201 });
+        return new NextResponse(JSON.stringify({ success: true, data: res?.data || { 'task_id': '' } }), { status: 201 });
     } catch (error) {
         console.error("Error in POST transaction", error);
         return new NextResponse(JSON.stringify({ success: false, error: "Internal Server Error" }), { status: 500 });
@@ -71,6 +69,16 @@ export const POST = async (req: NextRequest) => {
 };
 
 export const GET = async (req: NextRequest) => {
-    const quotes = await prisma.quotes.findMany();
-    return new NextResponse(JSON.stringify(quotes), { status: 200 })
+    const { searchParams } = new URL(req.url);
+    const page = Number(searchParams.get("page")) || 1;
+    const limit = Number(searchParams.get("limit")) || 10;
+    const offset = (page - 1) * limit;
+
+    const totalQuotes = await prisma.quotes.count(); 
+    const quotes = await prisma.quotes.findMany({
+        skip: offset,
+        take: limit
+    });
+
+    return NextResponse.json({ quotes, totalQuotes }, { status: 200 });
 }
