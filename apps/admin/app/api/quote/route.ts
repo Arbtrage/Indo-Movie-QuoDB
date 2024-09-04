@@ -13,7 +13,7 @@ interface QuoteRequest {
     year: string;
     language: Language;
 }
-const BATCH_SIZE = 50;
+const BATCH_SIZE = 200;
 
 export const POST = async (req: NextRequest) => {
     const session = await getSession();
@@ -24,10 +24,10 @@ export const POST = async (req: NextRequest) => {
 
     const batches = Math.ceil(data.length / BATCH_SIZE);
 
+    let quoteData: any = [];
     try {
         for (let i = 0; i < batches; i++) {
             const batchData = data.slice(i * BATCH_SIZE, (i + 1) * BATCH_SIZE);
-            let quoteData: any = [];
 
             console.log("Batch", i + 1, "of", batches, "started");
 
@@ -50,17 +50,20 @@ export const POST = async (req: NextRequest) => {
                 }
             });
 
-            if (quoteData.length > 0) {
-                const apiResponse = await axios.post(QUOTE_API_URL, quoteData);
-                if (apiResponse.status !== 200) {
-                    console.error(`Failed to post batch ${i} to API: ${apiResponse.status}`);
-                    throw new Error(`API responded with status: ${apiResponse.status}`);
-                }
-            }
 
             console.log("Batch", i + 1, "posted successfully");
         }
-        return new NextResponse(JSON.stringify({ success: true }), { status: 201 });
+
+        console.log(quoteData);
+
+        // if (quoteData.length > 0) {
+        //     const apiResponse = await axios.post(QUOTE_API_URL, quoteData);
+        //     if (apiResponse.status !== 200) {
+        //         throw new Error(`API responded with status: ${apiResponse.status}`);
+        //     }
+        // }
+
+        return new NextResponse(JSON.stringify({ success: true ,data: quoteData}), { status: 201 });
     } catch (error) {
         console.error("Error in POST transaction", error);
         return new NextResponse(JSON.stringify({ success: false, error: "Internal Server Error" }), { status: 500 });

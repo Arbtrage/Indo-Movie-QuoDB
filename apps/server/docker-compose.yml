@@ -17,8 +17,11 @@ services:
       ]
     depends_on:
       - elasticsearch
+      - redis
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     networks:
       - elasticnet
 
@@ -39,6 +42,8 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - xpack.security.enabled=false
       - xpack.license.self_generated.type=basic
+      - http.max_initial_line_length=100kb
+      - http.max_header_size=100kb
     ulimits:
       memlock:
         soft: -1
@@ -47,6 +52,62 @@ services:
       - esdata1:/usr/share/elasticsearch/data
     ports:
       - "9200:9200"
+    networks:
+      - elasticnet
+
+  redis:
+    container_name: redis
+    image: redis:7-alpine
+    networks:
+      - elasticnet
+
+  celery_worker:
+    container_name: celery_worker_imqdb
+    build: .
+    command:
+      [
+        "poetry",
+        "run",
+        "celery",
+        "-A",
+        "app.core.workers.celery_worker.celery_app",
+        "worker",
+      ]
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    volumes:
+      - .:/app
+    depends_on:
+      - api
+      - redis
+      - elasticsearch
+    networks:
+      - elasticnet
+
+  flower:
+    container_name: flower
+    build: .
+    command:
+      [
+        "poetry",
+        "run",
+        "celery",
+        "-A",
+        "app.core.workers.celery_worker.celery_app",
+        "flower",
+        "--port=5555",
+      ]
+    ports:
+      - 5556:5555
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - api
+      - redis
+      - celery_worker
     networks:
       - elasticnet
 

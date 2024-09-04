@@ -1,7 +1,9 @@
 from elasticsearch import AsyncElasticsearch
 from time import sleep
 from .indexes.quote_index import quote_index_mapping
+import math
 
+BATCH_SIZE = 50
 
 class ElasticsearchClient:
     client = None
@@ -48,6 +50,31 @@ class ElasticsearchClient:
         return response
     
     @classmethod
+    async def trigger_quotes_bulk(self, quotes):
+        es_client = await self.get_instance()
+        def chunk_list(lst, size):
+            for i in range(0, len(lst), size):
+                yield lst[i:i+size]
+
+        total_quotes = len(quotes)
+        total_batches = math.ceil(total_quotes / BATCH_SIZE)
+        
+        for batch_number, batch in enumerate(chunk_list(quotes, BATCH_SIZE), start=1):
+            operations = []
+            
+            for quote in batch:
+                operations.append({"index": {"_index": "quotes"}})
+                operations.append(quote)
+                
+            response = await es_client.bulk(operations=operations)
+            print(f"Batch {batch_number}/{total_batches} response:", response)
+            
+            if response.get('errors'):
+                print(f"Errors encountered in batch {batch_number}: {response['items']}")
+
+        return {"success": True}
+        
+    @classmethod
     async def get_quotes(self):
         es_client = await self.get_instance()
         res = await es_client.search(index="quotes",
@@ -66,7 +93,7 @@ class ElasticsearchClient:
         response = await es_client.search(
             index="quotes",
             body={
-                "size": 5,
+                "size": 20,
                 "query": {
                     "script_score": {
                         "query": {"match_all": {}},

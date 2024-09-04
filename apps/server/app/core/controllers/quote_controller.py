@@ -10,7 +10,6 @@ class QuoteController:
 
     def convert(self, quote):
         data = translate_service.translate(quote)
-        print("Translated Quote: ", data)
         return model_service.encode(data)
 
     async def get_quote(self, query: str):
@@ -42,3 +41,14 @@ class QuoteController:
 
         response = await ElasticsearchClient.insert_quotes_bulk(documents)
         return response
+
+    async def trigger_quotes_bulk(self, quotes):
+        documents = [
+            {
+                "ID": quote["quote_id"],  # Access quote_id as a dictionary key
+                "QuoteVector": self.convert(quote["quote"]),
+            }
+            for quote in quotes
+        ]
+        await ElasticsearchClient.trigger_quotes_bulk(documents)
+        return {"success": True}
