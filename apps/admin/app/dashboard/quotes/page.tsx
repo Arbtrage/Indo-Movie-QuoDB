@@ -1,49 +1,34 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PageContainer from "../../../components/Layout";
 import { Label } from "@ui/components/label";
 import useSWR from "swr";
-import { useRouter } from "next/navigation";
 import { fetcher } from "../../../libs/utils";
 import { QuotesTable } from "../../../components/Tables/QuotesTable";
 import { columns } from "../../../components/Tables/columns";
 
+export default function Dashboard() {
+    const { data, error, isLoading } = useSWR('/api/quote', fetcher);
 
-type paramsProps = {
-    searchParams: {
-        [key: string]: string | string[] | undefined;
-    };
-};
+    // State to manage client-side pagination
+    const [page, setPage] = useState(1);
+    const [pageLimit, setPageLimit] = useState(10);
 
-export default function Dashboard({ searchParams }: paramsProps) {
-    const router = useRouter();
-    const [page, setPage] = React.useState(Number(searchParams.page) || 1);
-    const [pageLimit, setPageLimit] = React.useState(Number(searchParams.limit) || 10);
-
-    const { data, error, isLoading } = useSWR(`/api/quote?page=${page}&limit=${pageLimit}`, fetcher, {
-        revalidateOnFocus: false,
-        revalidateOnMount: true,
-        revalidateOnReconnect: true
-    });
-
-    React.useEffect(() => {
-        const queryParams = new URLSearchParams();
-        queryParams.set('page', page.toString());
-        queryParams.set('limit', pageLimit.toString());
-
-        router.replace(`/dashboard/quotes?${queryParams.toString()}`, { scroll: false });
-    }, [page, pageLimit]);
-
-
-    // if (isLoading) return <div>Loading...</div>
-
-    // if (error) return <div>Failed to load</div>
-
-    // if (!isLoading && !error && !data) return <div>No data</div>
-
-    const quotes = data.quotes;
-    const totalQuotes = data.totalQuotes;
+    // Prepare data for current page
+    const startIndex = (page - 1) * pageLimit;
+    const currentData = data ? data.quotes.slice(startIndex, startIndex + pageLimit) : [];
+    const totalQuotes = data ? data.totalQuotes : 0;
     const pageCount = Math.ceil(totalQuotes / pageLimit);
+
+    // Handlers for page changes
+    const handlePageChange = (newPage: any) => {
+        setPage(newPage);
+    };
+
+    const handlePageLimitChange = (newLimit: any) => {
+        setPageLimit(newLimit);
+        setPage(1); // Reset to first page to avoid out-of-bound error when reducing page limit
+    };
 
     return (
         <PageContainer scrollable={true}>
@@ -55,10 +40,10 @@ export default function Dashboard({ searchParams }: paramsProps) {
                         pageNo={page}
                         columns={columns}
                         totalUsers={totalQuotes}
-                        data={quotes}
+                        data={currentData}
                         pageCount={pageCount}
-                        onPageChange={(newPage: number) => setPage(newPage)}
-                        onPageLimitChange={(newLimit: number) => setPageLimit(newLimit)}
+                        onPageChange={handlePageChange}
+                        onPageLimitChange={handlePageLimitChange}
                     />
                 ) : <>Loading...</>}
             </div>

@@ -42,6 +42,7 @@ export function QuotesTable<TData, TValue>({
   onPageLimitChange,
   pageSizeOptions = [10, 20, 30, 40, 50]
 }: DataTableProps<TData, TValue>) {
+  
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

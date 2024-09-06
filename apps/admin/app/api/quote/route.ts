@@ -69,16 +69,9 @@ export const POST = async (req: NextRequest) => {
 };
 
 export const GET = async (req: NextRequest) => {
-    const { searchParams } = new URL(req.url);
-    const page = Number(searchParams.get("page")) || 1;
-    const limit = Number(searchParams.get("limit")) || 10;
-    const offset = (page - 1) * limit;
 
     const totalQuotes = await prisma.quotes.count(); 
-    const quotes = await prisma.quotes.findMany({
-        skip: offset,
-        take: limit
-    });
+    const quotes = await prisma.quotes.findMany();
 
     return NextResponse.json({ quotes, totalQuotes }, { status: 200 });
 }
