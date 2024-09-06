@@ -14,7 +14,7 @@ interface QuoteRequest {
     language: Language;
 }
 
-const BATCH_SIZE = 200;
+const BATCH_SIZE = 100;
 
 export const POST = async (req: NextRequest) => {
     const session = await getSession();
