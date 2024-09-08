@@ -2,7 +2,9 @@ from app.core.services.model_service import model_service
 from app.core.models.quote_model import Quote
 from app.db.elasticsearch import ElasticsearchClient
 from app.core.services.translate_service import translate_service
+import logging
 
+logger = logging.getLogger(__name__)
 
 class QuoteController:
     def __init__(self):
@@ -43,12 +45,15 @@ class QuoteController:
         return response
 
     async def trigger_quotes_bulk(self, quotes):
+        print(f"In controller: processing {len(quotes)} quotes")
         documents = [
             {
-                "ID": quote["quote_id"],  # Access quote_id as a dictionary key
+                "ID": quote["quote_id"],
                 "QuoteVector": self.convert(quote["quote"]),
             }
             for quote in quotes
         ]
-        await ElasticsearchClient.trigger_quotes_bulk(documents)
-        return {"success": True}
+        print(f"Prepared {len(documents)} documents for Elasticsearch")
+        response = await ElasticsearchClient.insert_quotes_bulk(documents)
+        print(f"Elasticsearch bulk insert response: {response}")
+        return response

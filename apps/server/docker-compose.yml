@@ -71,20 +71,18 @@ services:
     container_name: celery_worker_imqdb
     build: .
     command:
-      [
-        "poetry",
-        "run",
-        "celery",
-        "-A",
-        "app.core.workers.celery_worker.celery_app",
-        "worker",
-      ]
+      - "poetry"
+      - "run"
+      - "celery"
+      - "-A"
+      - "app.core.workers.celery_worker.celery_app"
+      - "worker"
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
     volumes:
-      - .:/app:ro  # Set as read-only to minimize unnecessary writes
+      - .:/app:rw  # Set as read-write to minimize unnecessary writes
     depends_on:
       - api
       - redis
@@ -92,7 +90,11 @@ services:
     networks:
       - elasticnet
     logging:
-      driver: "none"  # Disable logging to save space
+      driver: "json-file"  # Consider enabling logging for troubleshooting
+      options:
+        max-size: "200m"
+        max-file: "10"
+
 
   flower:
     container_name: flower
@@ -119,13 +121,11 @@ services:
     networks:
       - elasticnet
     logging:
-      driver: "none"  # Disable logging to save space
+      driver: "none"  
 
 networks:
   elasticnet:
 
 volumes:
   esdata1:
-    driver_opts:
-      type: "tmpfs"  # Use tmpfs to store data in memory to reduce disk usage
-      o: "size=500m"  # Set a limit on the size of the Elasticsearch volume
+    driver: local

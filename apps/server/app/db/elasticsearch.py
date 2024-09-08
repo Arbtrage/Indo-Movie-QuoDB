@@ -1,8 +1,11 @@
 from elasticsearch import AsyncElasticsearch
 from time import sleep
 from .indexes.quote_index import quote_index_mapping
-import math
+import logging
+import asyncio
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 BATCH_SIZE = 50
 
 class ElasticsearchClient:
@@ -50,28 +53,33 @@ class ElasticsearchClient:
         return response
     
     @classmethod
-    async def trigger_quotes_bulk(self, quotes):
+    async def trigger_quotes_bulk(self, documents):
+        print(f"Entering trigger_quotes_bulk method with {len(documents)} documents")
         es_client = await self.get_instance()
-        def chunk_list(lst, size):
-            for i in range(0, len(lst), size):
-                yield lst[i:i+size]
-
-        total_quotes = len(quotes)
-        total_batches = math.ceil(total_quotes / BATCH_SIZE)
+        print(documents)
+        def chunk_documents(docs, chunk_size=BATCH_SIZE):
+            for i in range(0, len(docs), chunk_size):
+                yield docs[i:i + chunk_size]
         
-        for batch_number, batch in enumerate(chunk_list(quotes, BATCH_SIZE), start=1):
+        total_documents = len(documents)
+        total_batches = (total_documents + BATCH_SIZE - 1) // BATCH_SIZE  # Ceiling division
+        
+        for batch_num, batch in enumerate(chunk_documents(documents), 1):
+            print(f"Processing batch {batch_num}/{total_batches} (size: {len(batch)})")
             operations = []
-            
-            for quote in batch:
+            for doc in batch:
                 operations.append({"index": {"_index": "quotes"}})
-                operations.append(quote)
-                
-            response = await es_client.bulk(operations=operations)
-            print(f"Batch {batch_number}/{total_batches} response:", response)
+                operations.append(doc)
             
-            if response.get('errors'):
-                print(f"Errors encountered in batch {batch_number}: {response['items']}")
-
+            try:
+                response = await es_client.bulk(operations=operations)
+                print(f"Batch {batch_num}/{total_batches} response: {response}")
+                if response.get('errors'):
+                    logger.error(f"Errors in batch {batch_num}: {response['items']}")
+            except Exception as e:
+                logger.exception(f"Error processing batch {batch_num}: {str(e)}")
+        
+        print("Finished processing all batches")
         return {"success": True}
         
     @classmethod

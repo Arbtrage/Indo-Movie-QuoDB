@@ -54,7 +54,6 @@ async def add_quotes_bulk(quotes: List[Quote] = Body(...)):
 async def trigger_quotes_bulk(quotes: List[Quote] = Body(...)):
     try:
         quotes_data = [quote.dict() for quote in quotes]
-        print(quotes_data)
         print("Starting task...")
         response = quote_worker.delay(quotes_data)
         return {"task_id": response.id}
