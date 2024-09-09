@@ -23,6 +23,7 @@ export default function Dashboard() {
   if (error) return <div>Failed to load</div>
 
   if (!isLoading && !error && !data) return <div>No data</div>
+  console.log(data)
 
   return (
     <PageContainer scrollable={true}>
@@ -56,7 +57,7 @@ export default function Dashboard() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{data.totalQuotes}</div>
+                  <div className="text-2xl font-bold">{data.quotes}</div>
                   {/* <p className="text-xs text-muted-foreground">
                     +20.1% from last month
                   </p> */}
