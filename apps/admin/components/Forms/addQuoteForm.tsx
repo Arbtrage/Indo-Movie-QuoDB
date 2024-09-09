@@ -41,7 +41,7 @@ const AddQuoteForm = () => {
         e.preventDefault();
         try {
             setLoading(true);
-            await axios.post('/api/quote', formEntries);
+            await axios.post('/api/quote/form', formEntries);
             alert('Form submitted! Check the console for data.');
             console.log(formEntries);
         } catch (error) {

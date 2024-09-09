@@ -7,6 +7,8 @@ export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
 const QUOTE_TRIGGER_URL = process.env.QUOTE_TRIGGER_URL || "http://localhost:8000/v1/quote/trigger-quotes-bulk";
+const QUOTE_API_URL = process.env.QUOTE_API_URL || "http://localhost:8000/v1/quote/add-quotes-bulk";
+
 interface QuoteRequest {
     movie: string;
     quote: string;
@@ -54,14 +56,12 @@ export const POST = async (req: NextRequest) => {
             console.log("Batch", i + 1, "posted successfully");
         }
         let res;
-        if (quoteData.length > 0) {
-            res = await axios.post(QUOTE_TRIGGER_URL, quoteData);
-            // if (apiResponse.status !== 200) {
-            //     throw new Error(`API responded with status: ${apiResponse.status}`);
-            // }
-        }
+        // if (quoteData.length > 0) {
+        //     res = await axios.post(QUOTE_TRIGGER_URL, quoteData);
+        // }
+        await axios.post(QUOTE_API_URL, quoteData);
 
-        return new NextResponse(JSON.stringify({ success: true, data: res?.data || { 'task_id': '' } }), { status: 201 });
+        return new NextResponse(JSON.stringify({ success: true, data: null || { 'task_id': '' } }), { status: 201 });
     } catch (error) {
         console.error("Error in POST transaction", error);
         return new NextResponse(JSON.stringify({ success: false, error: "Internal Server Error" }), { status: 500 });
