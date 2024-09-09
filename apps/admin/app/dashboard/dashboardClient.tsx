@@ -4,7 +4,6 @@ import React from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle
 } from '@ui/components/card';
@@ -17,15 +16,13 @@ import { ContributionsTable } from "../../components/Tables/ContributionTable";
 
 
 export default function Dashboard() {
-  const { data, error, isLoading } = useSWR("/api/contributions", fetcher);
+  const { data, error, isLoading } = useSWR("/api/analytics", fetcher);
 
   if (isLoading) return <div>Loading...</div>
 
   if (error) return <div>Failed to load</div>
 
   if (!isLoading && !error && !data) return <div>No data</div>
-
-  console.log(data)
 
   return (
     <PageContainer scrollable={true}>
@@ -59,10 +56,10 @@ export default function Dashboard() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">$45,231.89</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="text-2xl font-bold">{data.totalQuotes}</div>
+                  {/* <p className="text-xs text-muted-foreground">
                     +20.1% from last month
-                  </p>
+                  </p> */}
                 </CardContent>
               </Card>
               <Card>
@@ -86,9 +83,9 @@ export default function Dashboard() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+2350</div>
+                  <div className="text-2xl font-bold">0</div>
                   <p className="text-xs text-muted-foreground">
-                    +180.1% from last month
+                    0% from last month
                   </p>
                 </CardContent>
               </Card>
@@ -110,9 +107,9 @@ export default function Dashboard() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+12,234</div>
+                  <div className="text-2xl font-bold">0</div>
                   <p className="text-xs text-muted-foreground">
-                    +19% from last month
+                    0% from last month
                   </p>
                 </CardContent>
               </Card>
@@ -135,9 +132,9 @@ export default function Dashboard() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+573</div>
+                  <div className="text-2xl font-bold">0</div>
                   <p className="text-xs text-muted-foreground">
-                    +201 since last hour
+                    0 since last hour
                   </p>
                 </CardContent>
               </Card>
